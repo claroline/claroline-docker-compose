@@ -1,0 +1,89 @@
+version: '2'
+services:
+  lb:
+    restart: always
+    image: 'dockercloud/haproxy:latest'
+    networks:
+      - front
+      - prosody
+    links:
+      - web
+      - prosody
+    ports:
+      # Web
+      - '443:443' # HTTPS
+      - '80:80' # HTTP Needs to be exposed for http->https redirection to work
+
+      # Prosody (not sure these are all used)
+      - 5222:5222 # c2s port
+      - 5269:5269 # s2s port
+      - 5347:5347 # XMPP component port
+      - 5280:5280 # BOSH / websocket port
+      - 5281:5281 # Secure BOSH / websocket port
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - certs:/certs/ # This is where the ssl certificates live
+    environment:
+      CERT_FOLDER: /certs/
+
+  web:
+    restart: always
+    build: web/
+    networks:
+      - front
+      - db
+    extra_hosts:
+      - "${APP_URL}:172.18.0.3" # This is really hacky, but needed so that web can talk to the lb
+    volumes:
+      - data:/var/www/html/claroline # This is where the symfony files are stored
+      - certs:/certs/ # This is where the ssl certificates live # This probably should not live in the web container
+    environment:
+      VIRTUAL_HOST: https://${APP_URL}, http://${APP_URL} # Both http and https are needed for http->https redirection to work
+      FORCE_SSL: "yes" # Force redirech http to https
+
+      #These should all be variables
+      APP_URL: ${APP_URL}
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SECRET: ${SECRET}
+
+  db:
+    restart: always
+    image: mysql
+    networks:
+      - db
+    volumes:
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+
+  prosody:
+    restart: always
+    image: prosody/prosody
+    volumes:
+      - ./prosody/config:/etc/prosody # The prosody config lives here
+      - prosody:/var/lib/prosody # The prosody data lives here
+    environment:
+      TCP_PORTS: "5222/ssl, 5269/ssl, 5347/ssl, 5280/ssl, 5281/ssl" #TODO : try eliminating some of these ports
+      LOCAL: ${PROSODY_LOCAL}
+      PASSWORD: ${PROSODY_PASSWORD}
+      DOMAIN: ${APP_URL}
+    networks:
+      - prosody
+
+networks:
+  front: # The frontend network
+  db: # The database network
+  prosody: # The prosody / chat network
+
+volumes:
+  data:  # This is where the symfony files are stored
+  mysql: # This is where the mysql data lives
+  certs: # This is where the ssl certificates live
+  prosody: # The prosody data lives here
