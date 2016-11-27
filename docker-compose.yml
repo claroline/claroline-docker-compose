@@ -65,7 +65,7 @@ services:
 
   prosody:
     restart: always
-    image: prosody/prosody
+    build: prosody/
     volumes:
       - ./prosody/config:/etc/prosody # The prosody config lives here
       - prosody:/var/lib/prosody # The prosody data lives here
