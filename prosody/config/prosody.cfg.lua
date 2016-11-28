@@ -29,16 +29,11 @@ modules_enabled = {
 
 allow_registration = true;
 
-ssl = {
-	key = "/etc/prosody/certs/localhost.key";
-	certificate = "/etc/prosody/certs/localhost.crt";
-}
-
 c2s_require_encryption = false
 
 s2s_secure_auth = false
 
-pidfile = "/var/run/prosody/prosody.pid"
+--pidfile = "/var/run/prosody/prosody.pid"
 
 authentication = "internal_plain"
 
