@@ -29,10 +29,11 @@ services:
   # You only need to run this if your production environment id behind a domain name and you want a letsencrypt https certificate
   # How to register a certificate :
   # docker-compose exec certbot certbot certonly --webroot --agree-tos -m ${CERT_EMAIL} -d ${DOMAIN_NAME} -w /var/www/html/claroline/web
-  # TODO Concat cert into pem file
-  # Renewing a certificate should work automaticly
-  # TODO Concat cert into pem file
-  
+  # cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/cert.pem
+  # Renewing a certificate
+  # certbot renew --post-hook 'cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/cert.pem'
+  # TODO Automate cert renew
+
   certbot:
     build: certbot/
     volumes:
