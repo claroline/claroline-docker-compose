@@ -45,6 +45,7 @@ RUN tar -xf wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
 RUN mv wkhtmltox/bin/wkhtmltopdf /usr/bin/wkhtmltopdf.sh
 RUN mv wkhtmltox/bin/wkhtmltoimage /usr/bin/wkhtmltoimage.sh
 RUN rm -r wkhtmltox
+RUN rm wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
 
 RUN pecl install apcu-beta \
 && echo extension=apcu.so > /usr/local/etc/php/conf.d/apcu.ini
