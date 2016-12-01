@@ -58,13 +58,14 @@ services:
       VIRTUAL_HOST: https://${APP_URL}, http://${APP_URL} # Both http and https are needed for http->https redirection to work
       FORCE_SSL: "yes" # Force redirech http to https
 
-      #These should all be variables
       APP_URL: ${APP_URL}
       DB_HOST: db
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       SECRET: ${SECRET}
+      # These will be the default platform options
+      PLATFORM_NAME: ${PLATFORM_NAME}
 
   db:
     restart: always
