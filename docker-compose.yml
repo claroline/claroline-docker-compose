@@ -24,12 +24,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - certs:/certs/ # This is where the haproxy ssl certificates live
     environment:
-      CERT_FOLDER: /certs/haproxy/
+      CERT_FOLDER: /certs/
 
   # You only need to run this if your production environment id behind a domain name and you want a letsencrypt https certificate
   # How to register a certificate :
   # docker-compose exec certbot certbot certonly --webroot --agree-tos -m ${CERT_EMAIL} -d ${DOMAIN_NAME} -w /var/www/html/claroline/web
-  # cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/haproxy/cert.pem
+  # cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/cert.pem
   # Renewing a certificate
   # certbot renew --post-hook 'cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/haproxy/cert.pem && TODO'
   # TODO Automate cert renew
