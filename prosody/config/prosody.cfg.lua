@@ -25,8 +25,8 @@ allow_registration = true;
 daemonize = false;
 
 ssl = {
-   key = "/etc/prosody/certs/localhost.key";
-   certificate = "/etc/prosody/certs/localhost.cert";
+  certificate = "/cert/fullchain.pem"; -- Note: Only readable by root by default
+  key = "/cert/privkey.pem";
 }
 
 c2s_require_encryption = false
@@ -36,25 +36,8 @@ s2s_secure_auth = false
 authentication = "internal_plain"
 
 log = {
-	-- Log files (change 'info' to 'debug' for debug logs):
-	info = "/var/log/prosody/prosody.log";
-	error = "/var/log/prosody/prosody.err";
-    warn = "/var/log/prosody/prosody.warn";
-	-- Syslog:
-	{ levels = { "error" }; to = "syslog";  };
+	{levels = {min = "debug"}, to = "console"};
 }
-
-bosh_ports = {
-                 {
-                    port = 5280;
-                    path = "http-bind";
-                 },
-                 {
-                    port = 5281;
-                    path = "http-bind";
-                    ssl = ssl
-                 }
-              }
 
 bosh_max_inactivity = 15
 cross_domain_bosh = true
@@ -69,4 +52,5 @@ VirtualHost "claroline.loc"
 Component "conference.prosody" "muc"
     name = "Claroline chat service"
         restrict_room_creation = false
+
 Include "conf.d/*.cfg.lua"
