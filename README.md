@@ -11,16 +11,18 @@ docker-compose up -d --build
 docker-compose exec web php app/console claroline:user:create -a Jhon Doe admin pass admin@mydomain.com
 ```
 
-## Obtaining a real "let's encrypt" certificate
+## Obtaining a "let's encrypt" certificate
 
 ```
-docker-compose exec prosody bash
-$ certbot certonly --webroot --agree-tos -m ${CERT_EMAIL} -d ${DOMAIN_NAME} -w /var/www/html/claroline/web
-$ cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/cert.pem
+docker-compose exec certbot ./obtain.sh
+docker-compose restart lb
 ```
 
-The haproxy container needs to be restarted for the new certificate to work
+## Renewing a "let's encrypt" certificate
+
+This should be set to a CRON task twice daily
 
 ```
+docker-compose exec certbot ./obtain.sh
 docker-compose restart lb
 ```
