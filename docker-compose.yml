@@ -3,9 +3,6 @@ services:
   lb:
     restart: always
     image: 'dockercloud/haproxy:latest'
-    networks:
-      lb:
-        ipv4_address: 172.16.238.10
     links:
       - web
       - prosody
@@ -19,7 +16,6 @@ services:
       - 5269:5269 # s2s port
       - 5347:5347 # XMPP component port
       - 5280:5280 # BOSH / websocket port
-      - 5281:5281 # Secure BOSH / websocket port
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - certs:/certs/ # This is where the haproxy ssl certificates live
@@ -38,7 +34,7 @@ services:
     build: certbot/
     volumes:
       - data:/var/www/html/claroline
-      - le:/etc/letsencrypt/live/${APP_URL}
+      - le:/etc/letsencrypt/
       - certs:/certs/ # This is where the ssl certificates live
     environment:
       CERT_EMAIL: ${CERT_EMAIL}
@@ -116,10 +112,8 @@ services:
     build: prosody/
     volumes:
       - prosody:/var/lib/prosody # The prosody data lives here
-      #- certs:/etc/prosody/ssl/ # This is where the haproxy ssl certificates live
-      - le:/certs/
     environment:
-      TCP_PORTS: "5222/ssl, 5269/ssl, 5347/ssl, 5280/ssl, 5281/ssl" #TODO : try eliminating some of these ports
+      TCP_PORTS: "5222/ssl, 5269/ssl, 5347/ssl, 5280/ssl"
       LOCAL: ${PLATFORM_CHAT_ADMIN_USERNAME}
       PASSWORD: ${PLATFORM_CHAT_ADMIN_PASSWORD}
       DOMAIN: ${APP_URL}

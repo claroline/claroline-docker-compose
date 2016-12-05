@@ -24,11 +24,6 @@ allow_registration = true;
 
 daemonize = false;
 
-ssl = {
-  certificate = "/cert/fullchain.pem"; -- Note: Only readable by root by default
-  key = "/cert/privkey.pem";
-}
-
 c2s_require_encryption = false
 
 s2s_secure_auth = false
@@ -43,11 +38,6 @@ bosh_max_inactivity = 15
 cross_domain_bosh = true
 
 consider_bosh_secure = true
-
-VirtualHost "claroline.loc"
-	enabled = true
-    ssl = ssl
-
 
 Component "conference.prosody" "muc"
     name = "Claroline chat service"

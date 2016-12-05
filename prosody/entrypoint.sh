@@ -5,7 +5,7 @@ if [ -f "/etc/prosody/conf.d/prosody.cfg.lua" ]; then
   rm /etc/prosody/conf.d/prosody.cfg.lua
 fi
 
-#echo "VirtualHost \"$APP_URL\"" >> /etc/prosody/conf.d/prosody.cfg.lua
+echo "VirtualHost \"$APP_URL\"" >> /etc/prosody/conf.d/claroline.cfg.lua
 
 if [[ "$1" != "prosody" ]]; then
     exec prosodyctl $*
