@@ -6,6 +6,4 @@ RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python-certbot-apache
 
-ENTRYPOINT ["/entrypoint.sh"]
-
 CMD ["tail", "-f", "dev/null"]
