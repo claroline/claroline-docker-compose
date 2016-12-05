@@ -43,4 +43,6 @@ Component "conference.prosody" "muc"
     name = "Claroline chat service"
         restrict_room_creation = false
 
+VirtualHost "claroline.loc"
+
 Include "conf.d/*.cfg.lua"
