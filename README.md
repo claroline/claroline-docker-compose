@@ -1,8 +1,26 @@
 # claroline-docker-compose
 
+## Installing (with a self signed certificate)
+
+1) Add your prosody virtualhost to prosody/config/prosody.cfg.lua
+
+2) To install the platform
+
 ```
 docker-compose up -d --build
-docker-compose exec web php app/console claroline:user:create -a Jhon Doe admin pass admin@mydomain.com 
+docker-compose exec web php app/console claroline:user:create -a Jhon Doe admin pass admin@mydomain.com
 ```
-For the moment this line needs to be changed manualy to your URL before deploying
-https://github.com/claroline/claroline-docker-compose/blob/master/prosody/config/prosody.cfg.lua#L42
+
+## Obtaining a real "let's encrypt" certificate
+
+```
+docker-compose exec prosody bash
+$ certbot certonly --webroot --agree-tos -m ${CERT_EMAIL} -d ${DOMAIN_NAME} -w /var/www/html/claroline/web
+$ cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/cert.pem
+```
+
+The haproxy container needs to be restarted for the new certificate to work
+
+```
+docker-compose restart lb
+```
