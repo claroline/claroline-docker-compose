@@ -4,6 +4,10 @@
 
 1) Add your prosody virtualhost to prosody/config/prosody.cfg.lua
 
+```
+echo "VirtualHost \"mydomain.com\"" >> prosody/config/prosody.cfg.lua
+```
+
 2) To install the platform
 
 ```
@@ -23,6 +27,6 @@ docker-compose restart lb
 This should be set to a CRON task twice daily
 
 ```
-docker-compose exec certbot ./obtain.sh
+docker-compose exec certbot ./renew.sh
 docker-compose restart lb
 ```
