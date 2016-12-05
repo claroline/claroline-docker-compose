@@ -3,6 +3,8 @@ services:
   lb:
     restart: always
     image: 'dockercloud/haproxy:latest'
+    networks:
+      - front
     links:
       - web
       - prosody
@@ -44,7 +46,7 @@ services:
     restart: always
     build: web/
     networks:
-      - lb
+      - front
       - db
     #extra_hosts:
     #  - "${APP_URL}:172.16.238.10" # This is needed so that web can talk to the lb, it allso meens we dont need to mess around with ssl certificates for the prosody server
@@ -118,7 +120,7 @@ services:
       PASSWORD: ${PLATFORM_CHAT_ADMIN_PASSWORD}
       DOMAIN: ${APP_URL}
     networks:
-      - lb
+      - front
 
 networks:
   lb: # The frontend network
