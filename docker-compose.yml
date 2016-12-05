@@ -5,7 +5,6 @@ services:
     image: 'dockercloud/haproxy:latest'
     networks:
       - front
-      - prosody
     links:
       - web
       - prosody
@@ -19,26 +18,19 @@ services:
       - 5269:5269 # s2s port
       - 5347:5347 # XMPP component port
       - 5280:5280 # BOSH / websocket port
-      - 5281:5281 # Secure BOSH / websocket port
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - certs:/certs/ # This is where the haproxy ssl certificates live
     environment:
       CERT_FOLDER: /certs/
-
-  # You only need to run this if your production environment id behind a domain name and you want a letsencrypt https certificate
-  # How to register a certificate :
-  # docker-compose exec certbot certbot certonly --webroot --agree-tos -m ${CERT_EMAIL} -d ${DOMAIN_NAME} -w /var/www/html/claroline/web
-  # cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/cert.pem
-  # Renewing a certificate
-  # certbot renew --post-hook 'cat /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem > /certs/cert.pem'
-  # TODO Automate cert renew
-
+      
+  # See README on how to obtain/update let's encrypt certificates
   certbot:
     build: certbot/
     volumes:
       - data:/var/www/html/claroline
-      - certs:/certs/ # This is where the haproxy ssl certificates live
+      - le:/etc/letsencrypt/
+      - certs:/certs/ # This is where the ssl certificates live
     environment:
       CERT_EMAIL: ${CERT_EMAIL}
       DOMAIN_NAME: ${APP_URL}
@@ -50,7 +42,7 @@ services:
       - front
       - db
     extra_hosts:
-      - "${APP_URL}:172.18.0.3" # This is really hacky, but needed so that web can talk to the lb
+      - "${APP_URL}:172.16.238.10" # This is needed so that web can talk to the lb in the case of a local installation.
     volumes:
       - data:/var/www/html/claroline # This is where the symfony files are stored
       - certs:/certs/ # This is where the ssl certificates live # This probably should not live in the web container
@@ -65,7 +57,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       SECRET: ${SECRET}
 
-      # These will be the default platform options
+      # These will be the default platform options, they are only used once during the Claroline Connect install
       PLATFORM_NAME: ${PLATFORM_NAME}
       PLATFORM_SUPPORT_EMAIL: ${PLATFORM_SUPPORT_EMAIL}
       PLATFORM_SSL_ENABLED: ${PLATFORM_SSL_ENABLED}
@@ -82,12 +74,14 @@ services:
       PLATFORM_MAX_UPLOAD_RESOURCES: ${PLATFORM_MAX_UPLOAD_RESOURCES}
       PLATFORM_MAX_WORKSPACE_USERS: ${PLATFORM_MAX_WORKSPACE_USERS}
       PLATFORM_IS_PDF_EXPORT_ACTIVE: ${PLATFORM_IS_PDF_EXPORT_ACTIVE}
-      PLATFORM_CHAT_BOSH_PORT: ${PLATFORM_CHAT_BOSH_PORT}
+      PLATFORM_CHAT_XMPP_HOST: ${APP_URL}
       PLATFORM_CHAT_ADMIN_USERNAME: ${PLATFORM_CHAT_ADMIN_USERNAME}
       PLATFORM_CHAT_ADMIN_PASSWORD: ${PLATFORM_CHAT_ADMIN_PASSWORD}
+      PLATFORM_CHAT_BOSH_PORT: ${PLATFORM_CHAT_BOSH_PORT}
       PLATFORM_CHAT_SSL: ${PLATFORM_CHAT_SSL}
+      PLATFORM_CHAT_XMPP_MUC_HOST: ${PLATFORM_CHAT_XMPP_MUC_HOST}
 
-      # The first user to be created
+      # The first user to be created, this is only used once during the Claroline Connect install
       ADMIN_FIRSTNAME: ${ADMIN_FIRSTNAME}
       ADMIN_LASTNAME: ${ADMIN_LASTNAME}
       ADMIN_USERNAME: ${ADMIN_USERNAME}
@@ -112,20 +106,27 @@ services:
     restart: always
     build: prosody/
     volumes:
-      - ./prosody/config:/etc/prosody # The prosody config lives here
       - prosody:/var/lib/prosody # The prosody data lives here
     environment:
-      TCP_PORTS: "5222/ssl, 5269/ssl, 5347/ssl, 5280/ssl, 5281/ssl" #TODO : try eliminating some of these ports
-      LOCAL: ${PROSODY_LOCAL}
-      PASSWORD: ${PROSODY_PASSWORD}
+      TCP_PORTS: "5222/ssl, 5269/ssl, 5347/ssl, 5280/ssl"
+      LOCAL: ${PLATFORM_CHAT_ADMIN_USERNAME}
+      PASSWORD: ${PLATFORM_CHAT_ADMIN_PASSWORD}
       DOMAIN: ${APP_URL}
     networks:
-      - prosody
+      - front
 
 networks:
   front: # The frontend network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
+        gateway: 172.16.238.1
+      - subnet: 2001:3984:3989::/64
+        gateway: 2001:3984:3989::1
+
   db: # The database network
-  prosody: # The prosody / chat network
 
 volumes:
   data:  # This is where the symfony files are stored

@@ -2,8 +2,6 @@
 
 set -e
 
-echo **************hello******************
-
 echo 'Checking for existing certificates'
 if [ ! -f "/certs/cert.pem" ]; then
   echo 'No certificates found matching your app url'
@@ -38,47 +36,58 @@ if [ ! -d "/var/www/html/claroline/web" ]; then
   fi
 
   if [[ -v PLATFORM_SUPPORT_EMAIL ]]; then
-    echo "Changing platform support email $PLATFORM_SUPPORT_EMAIL";
+    echo "Changing platform support email to $PLATFORM_SUPPORT_EMAIL";
     sed -i "/support_email: null/c\support_email: $PLATFORM_SUPPORT_EMAIL" app/config/platform_options.yml
   fi
 
   if [[ -v PLATFORM_SSL_ENABLED ]]; then
-    echo "Changing platform support email $PLATFORM_SSL_ENABLED";
+    echo "Changing ssl enabled to $PLATFORM_SSL_ENABLED";
     sed -i "/ssl_enabled: false/c\ssl_enabled: $PLATFORM_SSL_ENABLED" app/config/platform_options.yml
   fi
 
   # Set up chat
-  if [[ -v PLATFORM_CHAT_ADMIN_USERNAME ]]; then
-    echo "Setting chat admin username $PLATFORM_CHAT_ADMIN_USERNAME";
-    echo "chat_admin_username: $PLATFORM_CHAT_ADMIN_USERNAME" >> app/config/platform_options.yml
+  if [[ -v PLATFORM_CHAT_XMPP_HOST ]]; then
+    echo "Setting chat XMPP host to $PLATFORM_CHAT_XMPP_HOST";
+    echo "chat_xmpp_host: $PLATFORM_CHAT_XMPP_HOST" >> app/config/platform_options.yml
+    unset PLATFORM_CHAT_XMPP_HOST
   fi
 
   if [[ -v PLATFORM_CHAT_ADMIN_USERNAME ]]; then
-    echo "Setting chat admin password $PLATFORM_CHAT_ADMIN_PASSWORD";
+    echo "Setting chat admin username to $PLATFORM_CHAT_ADMIN_USERNAME";
+    echo "chat_admin_username: $PLATFORM_CHAT_ADMIN_USERNAME" >> app/config/platform_options.yml
+    unset PLATFORM_CHAT_ADMIN_USERNAME
+  fi
+
+  if [[ -v PLATFORM_CHAT_ADMIN_PASSWORD ]]; then
+    echo "Setting chat admin password to $PLATFORM_CHAT_ADMIN_PASSWORD";
     echo "chat_admin_password: $PLATFORM_CHAT_ADMIN_PASSWORD" >> app/config/platform_options.yml
+    unset PLATFORM_CHAT_ADMIN_PASSWORD
   fi
 
   if [[ -v PLATFORM_CHAT_BOSH_PORT ]]; then
-    echo "Setting chat BOSH port $PLATFORM_CHAT_BOSH_PORT";
+    echo "Setting chat BOSH port to $PLATFORM_CHAT_BOSH_PORT";
     echo "chat_bosh_port: $PLATFORM_CHAT_BOSH_PORT" >> app/config/platform_options.yml
+    unset PLATFORM_CHAT_BOSH_PORT
   fi
 
   if [[ -v PLATFORM_CHAT_SSL ]]; then
-    echo "Setting platform chat ssl $PLATFORM_CHAT_SSL";
+    echo "Setting chat ssl to $PLATFORM_CHAT_SSL";
     echo "chat_ssl: $PLATFORM_CHAT_SSL" >> app/config/platform_options.yml
+    unset PLATFORM_CHAT_SSL
   fi
 
+  if [[ -v PLATFORM_CHAT_XMPP_MUC_HOST ]]; then
+    echo "Setting chat XMPP MUC host to $PLATFORM_CHAT_XMPP_MUC_HOST";
+    echo "chat_xmpp_muc_host: $PLATFORM_CHAT_XMPP_MUC_HOST" >> app/config/platform_options.yml
+    unset PLATFORM_CHAT_XMPP_MUC_HOST
+  fi
 
-  echo 'Claroline Connect has finished installing'
+  echo 'Claroline Connect has finished installing.'
+
 else
-  echo 'Claroline Connect found'
+  echo 'Claroline Connect found, no need to install it again.'
 fi
 
-
 #exit 1
-
-
-
-echo ***************bye*******************
 
 exec "$@"

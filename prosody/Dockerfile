@@ -10,6 +10,7 @@ MAINTAINER Donovan Tengblad <donovan.tengblad@claroline.com>
 # Install dependencies
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        curl \
         libidn11 \
         liblua5.1-expat0 \
         libssl1.0.0 \
@@ -29,6 +30,10 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./entrypoint.sh /entrypoint.sh
+COPY ./config /etc/prosody
+
+RUN chmod -R 777 /etc/prosody
+
 RUN chmod 755 /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
